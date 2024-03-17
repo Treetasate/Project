@@ -65,12 +65,12 @@ def predict_class(input_text):
     return label_encoder.inverse_transform(y_pred_classes_new)[0]
 
 # Streamlit UI
-
-st.title("🐱‍👓 Prediction by LSTM 🐱‍🏍")
-input_text = st.text_area("ใส่ข้อความที่นี่","")
-if st.button("ทำนาย"):
-    if not input_text:
-        st.write("ไม่มีข้อความ")
-    else:
-        prediction = predict_class(input_text)
-        st.write("ผลการทำนาย:", prediction)
+def LSTM():
+    st.title("🐱‍👓 Prediction by LSTM 🐱‍🏍")
+    input_text = st.text_area("ใส่ข้อความที่นี่","",height=200)
+    if st.button("ทำนาย"):
+        if not input_text:
+            st.write("ไม่มีข้อความ")
+        else:
+            prediction = predict_class(input_text)
+            st.write("ผลการทำนาย:", prediction)
