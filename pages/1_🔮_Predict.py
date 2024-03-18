@@ -1,6 +1,7 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from pythainlp.corpus import thai_stopwords
 from pythainlp.tokenize import word_tokenize
 from tensorflow.keras.preprocessing.text import Tokenizer
