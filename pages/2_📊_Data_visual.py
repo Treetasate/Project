@@ -43,7 +43,7 @@ if not filtered_data.empty:
     st.plotly_chart(fig_pie)
 
     st.subheader("กราฟ")
-    fig = px.line(filtered_data, x='ปีการศึกษา', y='อาจารย์ที่ปรึกษา', color='ประเภทของโปรเจค')
+    fig = px.line(filtered_data, x='ปีการศึกษา', y='อาจารย์ที่ปรึกษา', color='อาจารย์ที่ปรึกษา')
     st.plotly_chart(fig)
 
 else:
