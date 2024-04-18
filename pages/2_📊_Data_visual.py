@@ -5,7 +5,7 @@ import plotly.express as px
 
 def load_data():
     # Load data from the CSV file
-    data = pd.read_csv("...\\...\\...\\Data\\Thesis.csv")
+    data = pd.read_csv("/workspaces/Project/Data/Thesis.csv")
     data.fillna("", inplace=True)
     data = data.astype(str)
     return data
