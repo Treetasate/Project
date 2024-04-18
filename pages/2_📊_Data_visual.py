@@ -3,9 +3,12 @@ import pandas as pd
 from functools import reduce 
 import plotly.express as px
 
+# Make sure to provide the correct file path and filename
+file_path = "/workspaces/Project/Data/Thesis.csv"
+
 def load_data():
     # Load data from the CSV file
-    data = pd.read_csv("/workspaces/Project/Data/Thesis.csv")
+    data = pd.read_csv(file_path)
     data.fillna("", inplace=True)
     data = data.astype(str)
     return data
