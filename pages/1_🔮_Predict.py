@@ -15,7 +15,6 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split
 
-
 # Load data
 url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQO5tgsRIpeMbYT0B_b6zTeSZmHkFl9FjPrvCsczYk7-WMgAVj52JpX4Gl72WHp5gLS9hH_g2BG88Ko/pub?gid=2062330787&single=true&output=csv'
 df = pd.read_csv(url)
@@ -219,10 +218,12 @@ def appCNN():
 st.title("🔮 Predict machine 🔮")
 
 # ใช้ selectbox เพื่อให้ผู้ใช้เลือกหน้า
-page = st.selectbox('เลือกเครื่องมือทำนาย : ', ['LSTM', 'RandomForest', 'Navivebayes', 'LogisticRegression', 'CNN'])
+page = st.selectbox('เลือกเครื่องมือทำนาย : ', ['กรุณาเลือกเครื่องมือทำนาย','LSTM', 'RandomForest', 'Navivebayes', 'LogisticRegression', 'CNN'])
 
 # เรียกใช้ฟังก์ชั่นของหน้าตามการเลือกของผู้ใช้
-if page == 'LSTM':
+if page == 'กรุณาเลือกเครื่องมือทำนาย':
+    st.text("")
+elif page == 'LSTM':
     appLSTM()
 elif page == 'RandomForest':
     appRandom()
@@ -232,3 +233,4 @@ elif page == 'LogisticRegression':
     appLogisticRegression()
 elif page == 'CNN':
     appCNN()
+

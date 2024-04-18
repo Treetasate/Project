@@ -1,50 +1,88 @@
 import streamlit as st
 import pandas as pd
+from functools import reduce 
 import plotly.express as px
 
-# โหลดข้อมูลจากไฟล์ CSV
-url = './Data/Thesis.csv'
-df = pd.read_csv(url)
+def load_data():
+    # Load data from the CSV file
+    data = pd.read_csv("D:\\File\\Project\\Data\\Thesis.csv")
+    data.fillna("", inplace=True)
+    data = data.astype(str)
+    return data
 
-# กำหนดหัวข้อของเว็บแอป
+data = load_data()
+
+# Custom CSS for dashboard styling
+st.markdown("""
+<style>
+.big-font {
+    font-size:20px !important;
+    font-weight:bold;
+}
+.red-font {
+    color:red;
+}
+.blue-font {
+    color:blue;
+}
+.green-font {
+    color:green;
+}
+</style>
+""", unsafe_allow_html=True)
+
 st.title("📉 Dashboard from CED 📈")
 
-col1, col2 = st.columns(2)
-
+# Selection boxes for filtering
+col1, col2, col3 = st.columns(3)
 with col1:
-    selected_years = st.multiselect("เลือกปีการศึกษา:", options=df['ปีการศึกษา'].unique(), default=df['ปีการศึกษา'].unique())
-
+    selected_year = st.selectbox("เลือกปีการศึกษา", ["ทั้งหมด"] + list(data['ปีการศึกษา'].unique()))
 with col2:
-    selected_types = st.multiselect("เลือกประเภทของโปรเจค:", options=df['ประเภทของโปรเจค'].unique(), default=df['ประเภทของโปรเจค'].unique())
+    selected_type = st.selectbox("เลือกประเภทของโปรเจค", ["ทั้งหมด"] + list(data['ประเภทของโปรเจค'].unique()))
+with col3:
+    selected_advisor = st.selectbox("เลือกอาจารย์ที่ปรึกษา", ["ทั้งหมด"] + list(data['อาจารย์ที่ปรึกษา'].unique()))
 
-selected_advisors = st.multiselect("เลือกอาจารย์ที่ปรึกษา:", options=df['อาจารย์ที่ปรึกษา'].unique(), default=df['อาจารย์ที่ปรึกษา'].unique())
+# Apply filtering based on selection
+conditions = []
+if selected_year != "ทั้งหมด":
+    conditions.append(data['ปีการศึกษา'] == selected_year)
+if selected_type != "ทั้งหมด":
+    conditions.append(data['ประเภทของโปรเจค'] == selected_type)
+if selected_advisor != "ทั้งหมด":
+    conditions.append(data['อาจารย์ที่ปรึกษา'] == selected_advisor)
 
-# กรองข้อมูลตามที่เลือก
-filtered_data = df[
-    df['ปีการศึกษา'].isin(selected_years) & 
-    df['ประเภทของโปรเจค'].isin(selected_types) & 
-    df['อาจารย์ที่ปรึกษา'].isin(selected_advisors)
-]
-
-# ตรวจสอบว่ามีข้อมูลหลังจากกรองหรือไม่
-if not filtered_data.empty:
-    
-    df['ปีการศึกษา'] = df['ปีการศึกษา'].astype(str)
-    project_type_counts = filtered_data['ประเภทของโปรเจค'].value_counts().reset_index()
-    project_type_counts.columns = ['ประเภทของโปรเจค', 'counts']
-
-    st.subheader("แผนภูมิแท่ง")
-    fig_bar = px.bar(filtered_data, x='ปีการศึกษา', y='ประเภทของโปรเจค', color='อาจารย์ที่ปรึกษา')
-    fig_bar.update_layout(xaxis_tickformat='d')
-    st.plotly_chart(fig_bar)
-
-    st.subheader("แผนภูมิวงกลม")
-    fig_pie = px.pie(project_type_counts, names='ประเภทของโปรเจค', values='counts')
-    st.plotly_chart(fig_pie)
-
-    st.subheader("กราฟ")
-    fig = px.line(filtered_data, x='ปีการศึกษา', y='อาจารย์ที่ปรึกษา', color='ประเภทของโปรเจค')
-    st.plotly_chart(fig)
-
+if conditions:
+    filtered_data = data.loc[reduce(lambda x, y: x & y, conditions)]
 else:
-    st.write("กรุณาเลือกข้อมูลเพื่อแสดงแผนภูมิ")
+    filtered_data = data.copy()
+
+# Recalculate totals based on filtered data
+unique_projects = filtered_data.shape[0]
+unique_authors = pd.concat([filtered_data[col] for col in ['ชื่อผู้ทำ1', 'ชื่อผู้ทำ2', 'ชื่อผู้ทำ3'] if col in filtered_data]).nunique()
+unique_advisors = pd.concat([filtered_data[col] for col in ['อาจารย์ที่ปรึกษา', 'ที่ปรึกษาร่วม1', 'ที่ปรึกษาร่วม2'] if col in filtered_data]).nunique()
+
+# Displaying totals
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.markdown(f"<div class='big-font red-font'>โปรเจคทั้งหมด : {unique_projects}</div>", unsafe_allow_html=True)
+with col2:
+    st.markdown(f"<div class='big-font blue-font'>นักศึกษาทั้งหมด : {unique_authors}</div>", unsafe_allow_html=True)
+with col3:
+    st.markdown(f"<div class='big-font green-font'>อาจารย์ทั้งหมด : {unique_advisors}</div>", unsafe_allow_html=True)
+
+st.title("")
+st.dataframe(filtered_data)  # You can use st.table(filtered_data) if no interactivity is needed
+
+# Creating a bar chart for the project types
+project_type_counts = filtered_data['ประเภทของโปรเจค'].value_counts().reset_index()
+project_type_counts.columns = ['ประเภทของโปรเจค', 'Count']
+fig_bar = px.bar(project_type_counts, x='ประเภทของโปรเจค', y='Count', title='Distribution of Project Types')
+st.plotly_chart(fig_bar)
+
+# Creating a pie chart for the advisors
+advisor_counts = filtered_data['อาจารย์ที่ปรึกษา'].value_counts().reset_index()
+advisor_counts.columns = ['อาจารย์ที่ปรึกษา', 'Count']
+fig_pie = px.pie(advisor_counts, values='Count', names='อาจารย์ที่ปรึกษา', title='Distribution of Projects by Advisor')
+st.plotly_chart(fig_pie)
+
+
