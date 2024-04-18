@@ -4,7 +4,7 @@ from functools import reduce
 import plotly.express as px
 
 # Make sure to provide the correct file path and filename
-file_path = "/workspaces/Project/Data/Thesis.csv"
+file_path = "Data/Thesis.csv"
 
 def load_data():
     # Load data from the CSV file
