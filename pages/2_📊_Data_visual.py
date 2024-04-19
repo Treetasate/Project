@@ -3,9 +3,11 @@ import pandas as pd
 from functools import reduce 
 import plotly.express as px
 
+file_path = "Data/Thesis.csv"
+
 def load_data():
     # Load data from the CSV file
-    data = pd.read_csv("D:\\File\\Project\\Data\\Thesis.csv")
+    data = pd.read_csv(file_path)
     data.fillna("", inplace=True)
     data = data.astype(str)
     return data
@@ -20,13 +22,13 @@ st.markdown("""
     font-weight:bold;
 }
 .red-font {
-    color:red;
+    color:white;
 }
 .blue-font {
-    color:blue;
+    color:white;
 }
 .green-font {
-    color:green;
+    color:white;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -36,11 +38,15 @@ st.title("📉 Dashboard from CED 📈")
 # Selection boxes for filtering
 col1, col2, col3 = st.columns(3)
 with col1:
-    selected_year = st.selectbox("เลือกปีการศึกษา", ["ทั้งหมด"] + list(data['ปีการศึกษา'].unique()))
+    selected_advisor = st.selectbox("เลือกอาจารย์ที่ปรึกษา", ["ทั้งหมด"] + list(data['อาจารย์ที่ปรึกษา'].unique()))
+
 with col2:
     selected_type = st.selectbox("เลือกประเภทของโปรเจค", ["ทั้งหมด"] + list(data['ประเภทของโปรเจค'].unique()))
+
 with col3:
-    selected_advisor = st.selectbox("เลือกอาจารย์ที่ปรึกษา", ["ทั้งหมด"] + list(data['อาจารย์ที่ปรึกษา'].unique()))
+    # Extract unique years, sort them, and include "ทั้งหมด"
+    unique_years = sorted(data['ปีการศึกษา'].unique(), key=lambda x: int(x))
+    selected_year = st.selectbox("เลือกปีการศึกษา", ["ทั้งหมด"] + unique_years)
 
 # Apply filtering based on selection
 conditions = []
@@ -62,6 +68,7 @@ unique_authors = pd.concat([filtered_data[col] for col in ['ชื่อผู�
 unique_advisors = pd.concat([filtered_data[col] for col in ['อาจารย์ที่ปรึกษา', 'ที่ปรึกษาร่วม1', 'ที่ปรึกษาร่วม2'] if col in filtered_data]).nunique()
 
 # Displaying totals
+st.title("")
 col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown(f"<div class='big-font red-font'>โปรเจคทั้งหมด : {unique_projects}</div>", unsafe_allow_html=True)
@@ -84,5 +91,3 @@ advisor_counts = filtered_data['อาจารย์ที่ปรึกษา
 advisor_counts.columns = ['อาจารย์ที่ปรึกษา', 'Count']
 fig_pie = px.pie(advisor_counts, values='Count', names='อาจารย์ที่ปรึกษา', title='Distribution of Projects by Advisor')
 st.plotly_chart(fig_pie)
-
-
